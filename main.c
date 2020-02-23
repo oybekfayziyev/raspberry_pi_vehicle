@@ -5,6 +5,13 @@
 # define IN4_PIN    4
 # define IN5_PIN    5
 # define IN6_PIN    6
+// IR sensor
+# define LEFT_IR_PIN    27
+# define RIGTH_IR_PIN   28
+
+// Ultrasonic sensor
+# define TRIG_PIN   28
+# define ECHO_PIN   29
 
 # define MAX_SPEED  50
 # define MIN_SPPED  0
@@ -25,11 +32,24 @@ int main(void){
     pinMode(IN5_PIN, OUTPUT);
     pinMode(IN6_PIN, OUTPUT);
 
+    pinMode(TRIG_PIN, OUTPUT);
+    pinMode(ECHO_PIN, INPUT);
+
     initDCMotor();
 
-    while(cntr > 0){
+    while(1){
+        Lvalue = digitalRead(LEFT_IR_PIN);
+        Rvalue = digitalRead(RIGTH_IR_PIN);
+        distance = getDistance();
         goForward();
-        delay(500);
+        delay(cntr);
+        if(Lvalue == 1 || Rvalue == 1 && distance == 100)
+            smoothForward(10);
+            delay(cntr);
+        else if (Lvalue == 1 || Rvalue == 1 && distance == 20)
+            stopDCMotor();
+        
+        cntr += 1;
     }
 
 }
@@ -93,6 +113,14 @@ void initDCMotorSmooth(){
     softPwmCreate(IN5_PIN, MIN_SPEED, MAX_SPEED);
     softPwmCreate(IN6_PIN, MIN_SPEED, MAX_SPPED);
 }
+
+// smooth forward
+void smoothForward(int value){
+    softPwmWrite(IN1_PIN,MAX_SPEED - value);
+    softPwmWrite(IN4_PIN, MIN_SPPED);
+    softPwmWrite(IN5_PIN, MAX_SPEED - value);
+    softPwmWrite(IN6_PIN, MIN_SPPED);
+}
 // smooth right
 void smoothRight(){
     // updates the PWM value on the given pin
@@ -108,4 +136,29 @@ void smoothLeft(){
     softPwmWrite(IN4_PIN, MIN_SPEED);
     softPwmWrite(IN5_PIN, MAX_SPEED);
     softPwmWrite(IN6_PIN, MIN_SPEED);
+}
+// get Distance
+void getDistance(){
+    int start_time = 0, end_time = 0;
+    float distance = 0;
+
+    // regularize trigger pin
+    digitalWrite(TRIG_PIN, LOW);
+    delay(500);
+    digitalWrite(TRIG_PIN, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(TRIG_PIN, LOW);
+
+    //regularize echo pin
+    while(digitalRead() == 0);
+    start_time = micros();
+
+    while(digitalRead() == 1);
+    end_time = micros();
+
+    distance = (end_time - start_time) / 29./ 2.;
+
+    return (int) distance
+
+
 }
