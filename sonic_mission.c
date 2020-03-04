@@ -13,12 +13,13 @@ void sonic_mission3(){
         distance = getDistance();
         goForward(0);
         printf("Distance %dc\n ",distance));
+        
         if(Lvalue == 1 || Rvalue == 1 && distance == 100){
             forward(10);            
         }
+
         if(Lvalue == 1 || Rvalue == 1 && distance == 20){
             stopDCMotor();            
-        }
-        
+        }  
     }
 }
